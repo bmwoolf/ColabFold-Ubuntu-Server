@@ -5,11 +5,12 @@ channels:
 dependencies:
   - python=3.10
   - pip
-  - jax
-  - jaxlib=*=*cuda*  # ensures GPU version
   - cudatoolkit=11.8
   - ffmpeg
   - pip:
       - colabfold
       - fastapi
       - uvicorn[standard]
+      - jax==0.3.25
+      - jaxlib==0.3.25+cuda11.cudnn805
+      - --find-links https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
