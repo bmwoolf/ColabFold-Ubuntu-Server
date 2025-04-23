@@ -8,9 +8,10 @@ dependencies:
   - cudatoolkit=11.8
   - ffmpeg
   - pip:
-      - colabfold
+      - colabfold[alphafold]
       - fastapi
       - uvicorn[standard]
       - jax==0.3.25
       - jaxlib==0.3.25+cuda11.cudnn805
       - --find-links https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+      - biopython==1.81
