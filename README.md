@@ -30,13 +30,10 @@ git clone https://github.com/bmwoolf/ColabFold-Ubuntu-Server.git
 cd ColabFold-Ubuntu-Server
 
 # Create the environment 
+conda env remove -n colabfold-server
 conda env create -f environment.yml
-
-# Activate ColabFold 
-conda activate colabfold-server 
-
-# Verify install
-colabfold_batch --help
+conda activate colabfold-server
+uvicorn server:app --host 0.0.0.0 --port 8000
 ```
 
 If you get JAX mismatch errors 
