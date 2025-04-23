@@ -57,10 +57,21 @@ def predict(req: PredictionRequest):
     # Find result
     base_name = req.header.split()[0]
     print("base_name", base_name)
-    pdb_path = os.path.join(output_path, f"{base_name}_relaxed_rank_1_model_1.pdb")
-    print("pdb_path", pdb_path)
+    # Dynamically find the best-ranked model
+    for file in os.listdir(output_path):
+        if "rank_001" in file and file.endswith(".pdb"):
+            pdb_path = os.path.join(output_path, file)
+            break
+    else:
+        raise HTTPException(status_code=404, detail="PDB file not found (rank_001)")
+        print("Files in output:", os.listdir(output_path))
+
+    # Check if PDB file exists 
     if not os.path.exists(pdb_path):
         raise HTTPException(status_code=404, detail="PDB file not found")
 
-    # Read PDB file 
-    return {"pdb_file": pdb_path}
+    # Read PDB file and return its contents
+    with open(pdb_path, "r") as f:
+        pdb_content = f.read()
+
+    return {"pdb": pdb_content}
