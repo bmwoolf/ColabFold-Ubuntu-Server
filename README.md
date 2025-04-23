@@ -13,7 +13,7 @@ FFMPEG (for some visualization utils)
 ```
 
 ## Environment setup for running 
-``bash
+```bash
 # System setup
 sudo apt update && sudo apt install -y \
     wget git build-essential ffmpeg \
