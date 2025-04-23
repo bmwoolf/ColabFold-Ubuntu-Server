@@ -7,9 +7,12 @@ import os
 app = FastAPI()
 
 # ColabFold requires FASTA files as inputs, so we temproraily store them 
-INPUT_DIR = "tmp/colabfold_inputs"
-OUTPUT_DIR = "tmp/colabfold_outputs"
+INPUT_DIR = "/tmp/colabfold_inputs"
+OUTPUT_DIR = "/tmp/colabfold_outputs"
 COLABFOLD_BIN = "colabfold_batch"
+
+os.makedirs(INPUT_DIR, exist_ok=True)
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Format input- FASTA header and sequence 
 class PredictionRequest(BaseModel):
