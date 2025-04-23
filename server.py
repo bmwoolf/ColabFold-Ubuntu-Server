@@ -3,7 +3,6 @@ from pydantic import BaseModel
 from uuid import uuid4
 import subprocess
 import os
-from colabfold.colabfold_app import ColabFoldApp
 
 app = FastAPI()
 
@@ -13,13 +12,13 @@ OUTPUT_DIR = "tmp/colabfold_outputs"
 COLABFOLD_BIN = "colabfold_batch"
 
 # Format input- FASTA header and sequence 
-class PredicitonRequest(BaseModel):
+class PredictionRequest(BaseModel):
     header: str
     sequence: str
 
 # Route
-@app.post("/predict"):
-def predict(req: Predictionrequest):
+@app.post("/predict")
+def predict(req: PredictionRequest):
     """
     Predicts a single sequence using ColabFold. ColabFold takes in a file as input, does MSA generation, 
     predicts the structure using AlphaFold2, then relaxes the structure with energy minimization via Amber.  
