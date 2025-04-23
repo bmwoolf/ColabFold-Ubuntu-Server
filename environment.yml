@@ -11,4 +11,5 @@ dependencies:
   - ffmpeg
   - pip:
       - colabfold
-      - tensorflow-cpu  # if needed for specific tools
+      - fastapi
+      - uvicorn[standard]
