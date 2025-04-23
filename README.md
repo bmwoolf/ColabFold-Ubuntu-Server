@@ -3,7 +3,7 @@
 Set up a local ColabFold prediction server on an NVIDIA 4090 GPU via Ubuntu 24. Super specific, but needed for running [BinderLoop](https://github.com/bmwoolf/BinderLoop) (the other repo that allows end to end de novo binder generation).
 
 ## Software used 
-```
+```bash
 Ubuntu 24.04 LTS
 NVIDIA GPU + CUDA 11.8
 Miniconda (Python 3.10)
@@ -37,4 +37,9 @@ conda activate colabfold-server
 
 # Verify install
 colabfold_batch --help
+```
+
+If you get JAX mismatch errors 
+```bash
+pip install --upgrade jax==0.4.27 jaxlib==0.4.27
 ```

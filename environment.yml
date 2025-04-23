@@ -1,13 +1,14 @@
 name: colabfold-server
 channels:
   - conda-forge
+  - defaults
 dependencies:
   - python=3.10
   - pip
   - jax
-  - jaxlib
-  - colabfold
-  - ffmpeg
+  - jaxlib=*=*cuda*  # ensures GPU version
   - cudatoolkit=11.8
+  - ffmpeg
   - pip:
-      - openfold
+      - colabfold
+      - tensorflow-cpu  # if needed for specific tools
