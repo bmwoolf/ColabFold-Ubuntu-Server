@@ -1,0 +1,13 @@
+name: colabfold-server
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - jax
+  - jaxlib
+  - colabfold
+  - ffmpeg
+  - cudatoolkit=11.8
+  - pip:
+      - openfold
