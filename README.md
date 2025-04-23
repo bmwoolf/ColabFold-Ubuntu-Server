@@ -28,8 +28,12 @@ eval "$($HOME/miniconda3/bin/conda shell.bash hook)"
 # Set up env
 git clone https://github.com/bmwoolf/ColabFold-Ubuntu-Server.git
 cd ColabFold-Ubuntu-Server
-conda env create -f env/environment.yml
-conda activate colabfold
+
+# Create the environment 
+conda env create -f environment.yml
+
+# Activate ColabFold 
+conda activate colabfold-server 
 
 # Verify install
 colabfold_batch --help
