@@ -30,13 +30,30 @@ git clone https://github.com/bmwoolf/ColabFold-Ubuntu-Server.git
 cd ColabFold-Ubuntu-Server
 
 # Create the environment 
-conda env remove -n colabfold-server
 conda env create -f environment.yml
-conda activate colabfold-server
-uvicorn server:app --host 0.0.0.0 --port 8000
+
+# Activate ColabFold 
+conda activate colabfold-server 
+
+# Verify install
+colabfold_batch --help
 ```
 
 If you get JAX mismatch errors 
 ```bash
 pip install --upgrade jax==0.4.27 jaxlib==0.4.27
 ```
+
+## Notes
+- de novo binder generation
+    - [masif](https://github.com/LPDI-EPFL/masif)  
+        - geometric deep learning on protein surfaces for predicting a binding site on a single protein
+        - used for finding where to bind 
+    - [p2rank](https://github.com/rdk/p2rank)
+        - ML-based ligand binding site predictor (designed for small molecules)
+        - predicts pockets likely to bind to molecules 
+        - used for designing around pockets
+    - [RFDiffusion2](https://www.biorxiv.org/content/10.1101/2025.04.09.648075v2)
+        - structure based de novo binder generation
+        - put in a target + optional constraints, and it generates the binder 
+        - doesn't need binding site if scaffolded correctly 
