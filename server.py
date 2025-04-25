@@ -1,10 +1,11 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from uuid import uuid4
-import subprocess
 import os
-from datetime import datetime
+import json
+import subprocess
+from uuid import uuid4
 from pathlib import Path
+from datetime import datetime
+from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException
 
 app = FastAPI()
 
@@ -60,6 +61,7 @@ def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
 
     # Find result
     base_name = req.header.split()[0]
+    print("base_name", base_name)
     
     # Dynamically find the best-ranked model
     for file in os.listdir(output_path):
@@ -77,7 +79,7 @@ def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
     # Read PDB file and return its contents
     with open(pdb_path, "r") as f:
         pdb_content = f.read()
-    print("pdb_content", pdb_content)
+    # print("pdb_content", pdb_content)
 
     # store each molecules pdb_content in a folder
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -112,8 +114,5 @@ def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
                 "prediction": "prediction.pdb"
             }
         }, f, indent=2)
-
-        # we need to return run_dir- we may need a nested function to return this on the backend
-        # + the pdb_content to the frontend (although we may not need this as we move the whole backend)
 
     return {"pdb": pdb_content}
