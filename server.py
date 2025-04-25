@@ -88,8 +88,9 @@ def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
 
     # store each molecules pdb_content in a folder
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    name = req.header.split("|")[0] # use the first part of the header as the name of the folder
-    run_dir = outputs_dir / name / timestamp
+    protein_id = req.header.split("|")[0].strip()
+    run_dir = outputs_dir / protein_id / timestamp
+    
     run_dir.mkdir(parents=True, exist_ok=True)
     
     # get header and sequence from the payload
@@ -123,7 +124,7 @@ def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
     
     # append to dataset log
     dataset_log = {
-        "name": name,
+        "protein_id": protein_id,
         "timestamp": timestamp,
         "sequence": req.sequence,
         "pdb_path": str(run_dir / "prediction.pdb"),
