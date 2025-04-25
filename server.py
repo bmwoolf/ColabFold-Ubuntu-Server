@@ -7,6 +7,8 @@ from pathlib import Path
 from datetime import datetime
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
+from scripts.merge_pdbs import merge_pdbs
+
 
 app = FastAPI()
 
