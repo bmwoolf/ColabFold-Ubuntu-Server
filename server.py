@@ -3,6 +3,8 @@ from pydantic import BaseModel
 from uuid import uuid4
 import subprocess
 import os
+from datetime import datetime
+from pathlib import Path
 
 app = FastAPI()
 
@@ -14,6 +16,8 @@ COLABFOLD_BIN = "colabfold_batch"
 os.makedirs(INPUT_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+OUTPUTS_DIR = Path("/outputs")
+
 # Format input- FASTA header and sequence 
 class PredictionRequest(BaseModel):
     header: str
@@ -21,7 +25,7 @@ class PredictionRequest(BaseModel):
 
 # Route
 @app.post("/predict")
-def predict(req: PredictionRequest):
+def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
     """
     Predicts a single sequence using ColabFold. ColabFold takes in a file as input, does MSA generation, 
     predicts the structure using AlphaFold2, then relaxes the structure with energy minimization via Amber.  
@@ -56,7 +60,7 @@ def predict(req: PredictionRequest):
 
     # Find result
     base_name = req.header.split()[0]
-    print("base_name", base_name)
+    
     # Dynamically find the best-ranked model
     for file in os.listdir(output_path):
         if "rank_001" in file and file.endswith(".pdb"):
@@ -73,5 +77,43 @@ def predict(req: PredictionRequest):
     # Read PDB file and return its contents
     with open(pdb_path, "r") as f:
         pdb_content = f.read()
+    print("pdb_content", pdb_content)
+
+    # store each molecules pdb_content in a folder
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    name = req.header.split("|")[0] # use the first part of the header as the name of the folder
+    run_dir = outputs_dir / f"{name}_{timestamp}"
+    run_dir.mkdir(exists_ok=True)
+
+    # get header and sequence from the payload
+    payload = {
+        "header": req.header,
+        "sequence": req.sequence
+    }
+
+    # write inputs to file 
+    with open(run_dir / "input.json", "w") as f:
+        json.dump(payload, f, indent=2)
+
+    # write pdb content to file 
+    pdb_path = run_dir / "prediction.pdb"
+    with open(pdb_path, "w") as f:
+        f.write(res.json()["pdb"])
+
+    # save metadata to file 
+    with open(run_dir / "metadata.json", "w") as f:
+        json.dump({
+            "timestamp": timestamp,
+            "header": req.header,
+            "sequence": req.sequence,
+            "sequence_length": len(req.sequence),
+            "files": {
+                "input": "input.json",
+                "prediction": "prediction.pdb"
+            }
+        }, f, indent=2)
+
+        # we need to return run_dir- we may need a nested function to return this on the backend
+        # + the pdb_content to the frontend (although we may not need this as we move the whole backend)
 
     return {"pdb": pdb_content}
