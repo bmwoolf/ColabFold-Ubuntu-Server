@@ -22,6 +22,9 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 OUTPUTS_DIR = Path("./outputs")
 os.makedirs(OUTPUTS_DIR, exist_ok=True)
 
+# load dataset log
+dataset_file = OUTPUTS_DIR / "dataset.jsonl"
+
 # format input- FASTA header and sequence 
 class PredictionRequest(BaseModel):
     header: str
@@ -54,7 +57,7 @@ def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
     with open(fasta_path, "w") as f:
         f.write(f">{req.header}\n{req.sequence}\n")
 
-    # un ColabFold, one sequence at a time 
+    # run ColabFold, one sequence at a time 
     try:
         subprocess.run([
             COLABFOLD_BIN,
@@ -74,7 +77,6 @@ def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
             break
     else:
         raise HTTPException(status_code=404, detail="PDB file not found (rank_001)")
-        print("Files in output:", os.listdir(output_path))
 
     # check if PDB file exists 
     if not os.path.exists(pdb_path):
@@ -87,10 +89,8 @@ def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
     # store each molecules pdb_content in a folder
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     name = req.header.split("|")[0] # use the first part of the header as the name of the folder
-    run_dir = outputs_dir / f"{name}_{timestamp}"
-    
-    # error here
-    run_dir.mkdir(parents=True,exist_ok=True)
+    run_dir = outputs_dir / name / timestamp
+    run_dir.mkdir(parents=True, exist_ok=True)
     
     # get header and sequence from the payload
     payload = {
@@ -120,6 +120,19 @@ def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
                 "prediction": "prediction.pdb"
             }
         }, f, indent=2)
+    
+    # append to dataset log
+    dataset_log = {
+        "name": name,
+        "timestamp": timestamp,
+        "sequence": req.sequence,
+        "pdb_path": str(run_dir / "prediction.pdb"),
+        "input_path": str(run_dir / "input.json"),
+        "metadata_path": str(run_dir / "metadata.json")
+    }
+
+    with open(outputs_dir / "dataset.jsonl", "a") as f:
+        f.write(json.dumps(dataset_log) + "\n")
     
     # cleanup temp files
     shutil.rmtree(output_path, ignore_errors=True)
