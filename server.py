@@ -131,7 +131,7 @@ def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
         "metadata_path": str(run_dir / "metadata.json")
     }
 
-    with open(outputs_dir / "dataset.jsonl", "a") as f:
+    with open(dataset_file, "a") as f:
         f.write(json.dumps(dataset_log) + "\n")
     
     # cleanup temp files
