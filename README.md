@@ -7,12 +7,16 @@ Set up a local ColabFold prediction server on an NVIDIA 4090 GPU via Ubuntu 24. 
 Ubuntu 24.04 LTS
 NVIDIA GPU + CUDA 11.8
 Miniconda (Python 3.10)
-ColabFold
+ColabFold (v1.5.3)
 JAX with CUDA
-FFMPEG (for some visualization utils)
+FFMPEG (visualization utils)
+Rosetta (structure scoring and docking)
+BioPython (PDB/FASTA handling)
+FastAPI (ColabFold API server)
+Pydantic (request validation)
 ```
 
-## Environment setup for running 
+## System setup for running on Ubuntu 
 ```bash
 # System setup
 sudo apt update && sudo apt install -y \
@@ -24,7 +28,10 @@ cd ~
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda3
 eval "$($HOME/miniconda3/bin/conda shell.bash hook)"
+```
 
+## Environment setup in Conda for running app
+```bash
 # Set up env
 git clone https://github.com/bmwoolf/ColabFold-Ubuntu-Server.git
 cd ColabFold-Ubuntu-Server
@@ -35,10 +42,11 @@ conda env create -f environment.yml
 # Activate ColabFold 
 conda activate colabfold-server 
 
-# Verify install
-colabfold_batch --help
+# Start server
+uvicorn server:app --host 0.0.0.0 --port 8000
 ```
 
+### Errors when starting
 If you get JAX mismatch errors 
 ```bash
 pip install --upgrade jax==0.4.27 jaxlib==0.4.27
