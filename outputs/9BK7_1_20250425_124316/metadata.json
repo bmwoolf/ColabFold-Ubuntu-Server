@@ -1,0 +1,10 @@
+{
+  "timestamp": "20250425_124316",
+  "header": "9BK7_1|Chain A|SHRT_binder|synthetic construct (32630)",
+  "sequence": "MSGGPKTVVVRLSPSMNEEQAAEIGREAGKAALAAGDRLVFVGPADQSYAAMKAAMEAGLPEVTMYALDFSDAESALKAAEVAEDEGDEEVAEVAREIAEEIKAGGSGSHHWGSTHHHHHH",
+  "sequence_length": 121,
+  "files": {
+    "input": "input.json",
+    "prediction": "prediction.pdb"
+  }
+}
