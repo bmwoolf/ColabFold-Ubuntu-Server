@@ -39,6 +39,23 @@ def postprocess_and_score(protein_pdb: Path, binder_pdb: Path, output_dir: Path)
     results = run_interface_analyzer(merged_pdb)
     return results
 
+# parse out the binding energy from the score file
+def parse_binding_energy(sc_file: Path) -> float:
+    with open(sc_file) as f:
+        for line in f:
+            if line.startswith("SCORE:") and not line.startswith("SCORE: total_score"):
+                fields = line.split()
+                header = [
+                    "total_score", "complex_normalized", "dG_cross", "dG_cross/dSASAx100", "dG_separated",
+                    "dG_separated/dSASAx100", "dSASA_hphobic", "dSASA_int", "dSASA_polar",
+                    "delta_unsatHbonds", "hbond_E_fraction", "hbonds_int",
+                    "nres_all", "nres_int", "packstat", "per_residue_energy_int",
+                    "sc_value", "side1_normalized", "side1_score", "side2_normalized", "side2_score", "description"
+                ]
+                dG_separated_idx = header.index("dG_separated")
+                return float(fields[dG_separated_idx + 2])  # +2 because Rosetta SCORE: outputs shift
+    raise ValueError("dG_separated not found in score file.")
+
 
 # route
 @app.post("/predict")
@@ -133,8 +150,11 @@ def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
 
         # merge and score
         score_results = postprocess_and_score(protein_pdb, binder_pdb, merged_output_dir)
-
         print("InterfaceAnalyzer results:", score_results)
+
+        # extract binding energy
+        binding_energy = parse_binding_energy(merged_output_dir / "complex.sc")
+        print(f"Binding energy (ΔG_separated): {binding_energy:.2f} kcal/mol")
     else:
         print("Not enough structures yet to merge and score.")
 
