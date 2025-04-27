@@ -7,7 +7,7 @@ from pathlib import Path
 from datetime import datetime
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
-from scripts.merge_pdbs import merge_pdbs
+from scripts.merge_pdbs import merge_pdbs, run_interface_analyzer
 
 
 app = FastAPI()
@@ -31,6 +31,14 @@ dataset_file = OUTPUTS_DIR / "dataset.jsonl"
 class PredictionRequest(BaseModel):
     header: str
     sequence: str
+
+# postprocess and score the merged PDB file
+def postprocess_and_score(protein_pdb: Path, binder_pdb: Path, output_dir: Path):
+    merged_pdb = output_dir / "merged" / "complex.pdb"
+    merge_pdbs(protein_pdb, binder_pdb, merged_pdb)
+    results = run_interface_analyzer(merged_pdb)
+    return results
+
 
 # route
 @app.post("/predict")
@@ -110,6 +118,25 @@ def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
     
     with open(pdb_path, "w") as f:
         f.write(pdb_content)
+
+    # merge and score if two structures are provided
+    existing_runs = list(outputs_dir.glob("*/*/prediction.pdb"))
+    if len(existing_runs) >= 2:
+        # find the two latest runs
+        latest_runs = sorted(existing_runs, key=os.path.getmtime)[-2:]
+        protein_pdb, binder_pdb = latest_runs
+
+        print(f"Merging and scoring: {protein_pdb.name} + {binder_pdb.name}")
+        
+        merged_output_dir = outputs_dir / "merged"
+        merged_output_dir.mkdir(exist_ok=True)
+
+        # merge and score
+        score_results = postprocess_and_score(protein_pdb, binder_pdb, merged_output_dir)
+
+        print("InterfaceAnalyzer results:", score_results)
+    else:
+        print("Not enough structures yet to merge and score.")
 
     # save metadata to file 
     with open(run_dir / "metadata.json", "w") as f:
