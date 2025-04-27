@@ -1,9 +1,11 @@
+# scripts/merge_pdbs.py
+
 from pathlib import Path
 from Bio.PDB import PDBParser, PDBIO
 import subprocess
 
 def load_and_rename(pdb_path: Path, chain_id: str):
-    """Load PDB and rename chain"""
+    """Load a PDB file and rename all chains to the given chain ID."""
     parser = PDBParser(QUIET=True)
     structure = parser.get_structure("pdb", str(pdb_path))
     for model in structure:
@@ -13,72 +15,54 @@ def load_and_rename(pdb_path: Path, chain_id: str):
 
 def merge_pdbs(protein_pdb: Path, binder_pdb: Path, output_path: Path) -> Path:
     """
-    Merge protein and binder PDB files for Rosetta analysis.
-    
+    Merge protein and binder PDBs into one complex for Rosetta analysis.
+
     Args:
-        protein_pdb: Path to protein PDB file (ScNtx)
-        binder_pdb: Path to binder PDB file (SHRT)
-        output_path: Path to save merged PDB
-        
+        protein_pdb: Path to the protein PDB (chain A).
+        binder_pdb: Path to the binder PDB (chain B).
+        output_path: Path to save the merged complex PDB.
+
     Returns:
-        Path to merged PDB file
+        Path to merged output PDB.
     """
-    # Load structures and rename chains
-    protein = load_and_rename(protein_pdb, "A")  # ScNtx as chain A
-    binder = load_and_rename(binder_pdb, "B")    # SHRT as chain B
-    
-    # Create output directory if needed
-    output_path.parent.mkdir(exist_ok=True)
-    
-    # Merge structures
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    protein = load_and_rename(protein_pdb, "A")
+    binder = load_and_rename(binder_pdb, "B")
+
     io = PDBIO()
     with open(output_path, "w") as out:
         io.set_structure(protein)
         io.save(out)
-        out.write("TER\n")  # Terminal record
+        out.write("TER\n")
         io.set_structure(binder)
         io.save(out)
         out.write("TER\nEND\n")
-    
+
     return output_path
 
 def run_interface_analyzer(pdb_path: Path) -> dict:
     """
-    Run Rosetta InterfaceAnalyzer on merged PDB.
-    
+    Run Rosetta's InterfaceAnalyzer on the merged PDB file.
+
     Args:
-        pdb_path: Path to merged PDB file
-        
+        pdb_path: Path to the merged complex PDB.
+
     Returns:
-        Dict containing analysis results
+        Dictionary containing Rosetta output.
     """
     cmd = [
-        "InterfaceAnalyzer",
+        "InterfaceAnalyzer.default.linuxgccrelease",
         f"-s {pdb_path}",
         "-pack_input true",
         "-pack_separated true",
-        "-out:file:score_only score.sc"
+        "-out:file:score_only",
+        str(pdb_path.with_suffix('.sc'))
     ]
-    
-    result = subprocess.run(" ".join(cmd), shell=True, check=True,
-                          capture_output=True, text=True)
-    
-    # TODO: Parse score.sc file and return results
-    return {"stdout": result.stdout}
 
-if __name__ == "__main__":
-    outputs = Path("outputs")
-    
-    # Find latest ScNtx and SHRT predictions
-    scntx_dir = sorted(outputs.glob("7Z14_5_*"))[-1]
-    shrt_dir = sorted(outputs.glob("9BK7_1_*"))[-1]
-    
-    protein_pdb = scntx_dir / "prediction.pdb"
-    binder_pdb = shrt_dir / "prediction.pdb"
-    merged_pdb = outputs / "merged" / "complex.pdb"
-    
-    merged_path = merge_pdbs(protein_pdb, binder_pdb, merged_pdb)
-    print(f"Merged PDB saved to: {merged_path}")
-    
-    results = run_interface_analyzer(merged_path)
-    print("Interface analysis complete")
+    result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+    return {
+        "stdout": result.stdout,
+        "stderr": result.stderr,
+        "score_file": str(pdb_path.with_suffix('.sc'))
+    }
