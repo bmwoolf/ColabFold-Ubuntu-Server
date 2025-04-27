@@ -1,6 +1,6 @@
 # ColabFold-Ubuntu-Server
 
-Set up a local ColabFold prediction server on an NVIDIA 4090 GPU via Ubuntu 24. Super specific, but needed for running [BinderLoop](https://github.com/bmwoolf/BinderLoop) (the other repo that allows end to end de novo binder generation).
+Set up a local ColabFold prediction server on an NVIDIA 4070 GPU via Ubuntu 24. Super specific, but needed for running [BinderLoop](https://github.com/bmwoolf/BinderLoop) (the other repo that allows end to end de novo binder generation).
 
 ## Software used 
 ```bash
