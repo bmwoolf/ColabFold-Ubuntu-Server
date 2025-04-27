@@ -70,8 +70,8 @@ tar -xvjf rosetta_src_3.14_bundle.tar.bz2
 # enter the source folder
 cd rosetta.source.release-371/main/source
 
-# compile Rosetta
-python3 ./scons.py -j4 mode=release bin
+# compile Rosetta- i chose 24 because i have 24 threads, you will have to choose for your computer
+python3 ./scons.py -j24 mode=release bin
 ```
 ** I ran into a lot of problems installing this. If you have problems, just email me and I can help install. 
 
