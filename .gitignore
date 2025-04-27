@@ -173,6 +173,7 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-# Ignore all outputs except dataset.jsonl
+# Ignore all outputs except dataset.jsonl and complex output file
 outputs/*
 !outputs/dataset.jsonl
+!outputs/merged/merged/complex.sc
