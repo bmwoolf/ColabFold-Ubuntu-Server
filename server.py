@@ -89,7 +89,10 @@ def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
         subprocess.run([
             COLABFOLD_BIN,
             fasta_path,
-            output_path
+            output_path,
+            "--num-recycle", "8",
+            "--num-models", "5",
+            # "--amber"
         ], check=True) # Crashes if error
     except subprocess.CalledProcessError:
         raise HTTPException(status_code=500, detail="ColabFold prediction failed")
@@ -153,7 +156,7 @@ def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
         print("InterfaceAnalyzer results:", score_results)
 
         # extract binding energy
-        binding_energy = parse_binding_energy(merged_output_dir / "complex.sc")
+        binding_energy = parse_binding_energy(merged_output_dir / "merged" / "complex.sc")
         print(f"Binding energy (ΔG_separated): {binding_energy:.2f} kcal/mol")
     else:
         print("Not enough structures yet to merge and score.")
