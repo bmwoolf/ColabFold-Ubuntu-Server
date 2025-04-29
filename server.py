@@ -57,7 +57,7 @@ def parse_binding_energy(sc_file: Path) -> float:
     raise ValueError("dG_separated not found in score file.")
 
 
-# route
+# route for ColabFold prediction
 @app.post("/predict")
 def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
     """

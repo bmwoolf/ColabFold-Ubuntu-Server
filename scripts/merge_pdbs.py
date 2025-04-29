@@ -1,9 +1,8 @@
-# scripts/merge_pdbs.py
-
 from pathlib import Path
 from Bio.PDB import PDBParser, PDBIO
 import subprocess
 
+# load and rename the PDB file
 def load_and_rename(pdb_path: Path, chain_id: str):
     """Load a PDB file and rename all chains to the given chain ID."""
     parser = PDBParser(QUIET=True)
@@ -13,6 +12,7 @@ def load_and_rename(pdb_path: Path, chain_id: str):
             chain.id = chain_id
     return structure
 
+# merge the protein and binder PDBs into one complex for Rosetta analysis
 def merge_pdbs(protein_pdb: Path, binder_pdb: Path, output_path: Path) -> Path:
     """
     Merge protein and binder PDBs into one complex for Rosetta analysis.
@@ -41,6 +41,7 @@ def merge_pdbs(protein_pdb: Path, binder_pdb: Path, output_path: Path) -> Path:
 
     return output_path
 
+# run Rosetta's InterfaceAnalyzer on the merged PDB file
 def run_interface_analyzer(pdb_path: Path) -> dict:
     """
     Run Rosetta's InterfaceAnalyzer on the merged PDB file.
