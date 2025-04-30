@@ -74,7 +74,7 @@ def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
     ColabFold outputs many files, but the main output is in [protein]_relaxed_rank_1_model_1.pdb, 
     which you can then feed into PyMOL, ChimeraX or your favorite structure viewer. 
     """
-    # fasta_id = f"{req.header.split()[0]}_{uuid4().hex[:8]}"
+    
     # sanitize 
     fasta_id = req.header.split()[0].replace("|", "_") + "_" + uuid4().hex[:8]
     fasta_path = os.path.join(INPUT_DIR, f"{fasta_id}.fasta")
@@ -92,7 +92,7 @@ def predict(req: PredictionRequest, outputs_dir: Path = OUTPUTS_DIR):
             output_path,
             "--num-recycle", "8",
             "--num-models", "5",
-            # "--amber"
+            "--amber"
         ], check=True) # Crashes if error
     except subprocess.CalledProcessError:
         raise HTTPException(status_code=500, detail="ColabFold prediction failed")
