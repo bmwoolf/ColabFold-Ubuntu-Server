@@ -108,24 +108,3 @@ python3.10 --version
 cd ~/Downloads/rosetta.source.release-371/main/source
 python3.10 ./scons.py -j24 mode=release bin
 ```
-
-
-## Notes
-- de novo binder generation
-    - [masif](https://github.com/LPDI-EPFL/masif)  
-        - geometric deep learning on protein surfaces for predicting a binding site on a single protein
-        - used for finding where to bind 
-    - [p2rank](https://github.com/rdk/p2rank)
-        - ML-based ligand binding site predictor (designed for small molecules)
-        - predicts pockets likely to bind to molecules 
-        - used for designing around pockets
-    - [RFDiffusion2](https://www.biorxiv.org/content/10.1101/2025.04.09.648075v2)
-        - structure based de novo binder generation
-        - put in a target + optional constraints, and it generates the binder 
-        - doesn't need binding site if scaffolded correctly 
-- tar -xvjs: "unpack this .tar.bz2 file and show me the progress"
-- scons: python based build system, like Make files but for Python
-    - allows the user to specify the number of jobs they can do
-    - a job = one CPU thread
-- hyperthreaded: one physical CPU core runs two instruction streams (threads) at once by sharing core resources
-    - boosts performance 10-30%
